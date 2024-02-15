@@ -1,0 +1,37 @@
+﻿<script> 
+    fetch('/bff/images')
+        .then((response) => response.json())
+        .then((images) => { 
+            const container = document.getElementById('container_for_images');
+
+            for (let i = 0; i < images.length; i++) {
+                const surroundingDiv = document.createElement('div');
+                surroundingDiv.className = 'pull-left col-md-4';
+
+                const firstInnerDiv = document.createElement('div');
+                const img = document.createElement('img');
+                img.className = 'thumbnailImage';
+                img.src = 'https://localhost:7075/images/' + images[i].FileName;
+
+                firstInnerDiv.appendChild(img);
+                surroundingDiv.appendChild(firstInnerDiv);
+
+                const secondInnerDiv = document.createElement('div');
+                const titleDiv = document.createElement('div');
+                titleDiv.className = 'h6 topMarginSmall';
+                titleDiv.innerHTML = images[i].Title;
+                secondInnerDiv.appendChild(titleDiv);
+
+                surroundingDiv.appendChild(secondInnerDiv);
+                container.appendChild(surroundingDiv);
+            }
+        }).catch(console.error);
+</script>
+
+<div class="bottomMarginDefault">
+</div> 
+
+<div class="container">
+    <div class="row" id="container_for_images"> 
+    </div>
+</div> 
