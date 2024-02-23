@@ -1,12 +1,11 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 
-namespace ImageGallery.API.Authorization
+namespace ImageGallery.API.Authorization;
+
+public class MustOwnImageAttribute : AuthorizeAttribute, IAuthorizationRequirementData
 {
-    public class MustOwnImageAttribute : AuthorizeAttribute, IAuthorizationRequirementData
+    public IEnumerable<IAuthorizationRequirement> GetRequirements()
     {
-        public IEnumerable<IAuthorizationRequirement> GetRequirements()
-        {
-            return new[] { new MustOwnImageRequirement() };
-        }
+        return new[] { new MustOwnImageRequirement() };
     }
 }

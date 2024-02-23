@@ -56,10 +56,7 @@ namespace Marvin.IDP.Services
                 throw new ArgumentNullException(nameof(providerIdentityKey));
             }
 
-            if (claims is null)
-            {
-                throw new ArgumentNullException(nameof(claims));
-            }
+            ArgumentNullException.ThrowIfNull(claims);
 
             var user = new User()
             {
@@ -86,14 +83,12 @@ namespace Marvin.IDP.Services
 
         public async Task<User> GetUserByEmailAsync(string email)
         {
-            if (email is null)
-            {
-                throw new ArgumentNullException(nameof(email));
-            }
+            ArgumentNullException.ThrowIfNull(email);
 
             return await _context.Users
                 .FirstOrDefaultAsync(u => u.Email == email);
         }
+
         public async Task AddExternalProviderToUser(
            string subject,
            string provider,

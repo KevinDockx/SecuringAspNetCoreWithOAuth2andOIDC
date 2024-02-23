@@ -1,21 +1,13 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace ImageGallery.BFF.Controllers
-{
-    [Authorize]
-    public class HomeController : Controller
-    {
-        private readonly ILogger<HomeController> _logger;
+namespace ImageGallery.BFF.Controllers;
 
-        public HomeController(ILogger<HomeController> logger)
-        {
-            _logger = logger;
-        }
-        
-        public IActionResult Index()
-        {
-            return View();
-        }
+[Authorize]
+public class HomeController : Controller
+{ 
+    public IActionResult Index()
+    {
+        return View();
     }
 }

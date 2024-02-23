@@ -33,15 +33,28 @@ internal static class HostingExtensions
 
         var azureCredential = new DefaultAzureCredential();
 
+        var dpKeys = builder.Configuration["DataProtection:Keys"];
+        var dpProtectionKey = builder.Configuration["DataProtection:ProtectionKeyForKeys"];
+        var keyVaultUri = builder.Configuration["KeyVault:RootUri"];
+
+        if (dpKeys == null || dpProtectionKey == null)
+        {
+            throw new Exception("Missing data protection configuration value");
+        } 
+        if (keyVaultUri == null)
+        {
+            throw new Exception("Missing keyvault configuration value");
+        } 
+
         builder.Services.AddDataProtection()
             .PersistKeysToAzureBlobStorage(
-                new Uri(builder.Configuration["DataProtection:Keys"]),
+                new Uri(dpKeys),
                 azureCredential)
             .ProtectKeysWithAzureKeyVault(
-                new Uri(builder.Configuration["DataProtection:ProtectionKeyForKeys"]),
+                new Uri(dpProtectionKey),
                 azureCredential);
         var secretClient = new SecretClient(
-               new Uri(builder.Configuration["KeyVault:RootUri"]),
+               new Uri(keyVaultUri),
                azureCredential);
 
         var secretResponse = secretClient.GetSecret(
@@ -49,7 +62,7 @@ internal static class HostingExtensions
 
         var signingCertificate = new X509Certificate2(
           Convert.FromBase64String(secretResponse.Value.Value),
-          (string)null,
+          (string?)null,
           X509KeyStorageFlags.MachineKeySet);
 
         // uncomment if you want to add a UI

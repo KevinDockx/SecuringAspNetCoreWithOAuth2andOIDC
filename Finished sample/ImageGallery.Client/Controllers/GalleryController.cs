@@ -7,214 +7,199 @@ using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using System.Text;
 using System.Text.Json;
 
-namespace ImageGallery.Client.Controllers
+namespace ImageGallery.Client.Controllers;
+
+[Authorize]
+public class GalleryController(IHttpClientFactory httpClientFactory,
+    ILogger<GalleryController> logger) : Controller
 {
-    [Authorize]
-    public class GalleryController : Controller
+    private readonly IHttpClientFactory _httpClientFactory = httpClientFactory ??
+            throw new ArgumentNullException(nameof(httpClientFactory));
+    private readonly ILogger<GalleryController> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+
+    public async Task<IActionResult> Index()
     {
-        private readonly IHttpClientFactory _httpClientFactory;
-        private readonly ILogger<GalleryController> _logger;
+        await LogIdentityInformation();
 
-        public GalleryController(IHttpClientFactory httpClientFactory,
-            ILogger<GalleryController> logger)
+        var httpClient = _httpClientFactory.CreateClient("APIClient");
+
+        var request = new HttpRequestMessage(
+            HttpMethod.Get,
+            "/api/images/");
+
+        var response = await httpClient.SendAsync(
+            request, HttpCompletionOption.ResponseHeadersRead);
+
+        response.EnsureSuccessStatusCode();
+
+        using (var responseStream = await response.Content.ReadAsStreamAsync())
         {
-            _httpClientFactory = httpClientFactory ??
-                throw new ArgumentNullException(nameof(httpClientFactory));
-            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            var images = await JsonSerializer.DeserializeAsync<List<Image>>(responseStream);
+            return View(new GalleryIndexViewModel(images ?? []));
         }
+    }
 
-        public async Task<IActionResult> Index()
+    public async Task<IActionResult> EditImage(Guid id)
+    {
+
+        var httpClient = _httpClientFactory.CreateClient("APIClient");
+
+        var request = new HttpRequestMessage(
+            HttpMethod.Get,
+            $"/api/images/{id}");
+
+        var response = await httpClient.SendAsync(
+            request, HttpCompletionOption.ResponseHeadersRead);
+
+        response.EnsureSuccessStatusCode();
+
+        using (var responseStream = await response.Content.ReadAsStreamAsync())
         {
-            await LogIdentityInformation();
-
-            var httpClient = _httpClientFactory.CreateClient("APIClient");
-
-            var request = new HttpRequestMessage(
-                HttpMethod.Get,
-                "/api/images/");
-
-            var response = await httpClient.SendAsync(
-                request, HttpCompletionOption.ResponseHeadersRead);
-
-            response.EnsureSuccessStatusCode();
-
-            using (var responseStream = await response.Content.ReadAsStreamAsync())
+            var deserializedImage = await JsonSerializer.DeserializeAsync<Image>(responseStream) ?? throw new Exception("Deserialized image must not be null.");
+            var editImageViewModel = new EditImageViewModel()
             {
-                var images = await JsonSerializer.DeserializeAsync<List<Image>>(responseStream);
-                return View(new GalleryIndexViewModel(images ?? new List<Image>()));
-            }
-        }
-
-        public async Task<IActionResult> EditImage(Guid id)
-        {
-
-            var httpClient = _httpClientFactory.CreateClient("APIClient");
-
-            var request = new HttpRequestMessage(
-                HttpMethod.Get,
-                $"/api/images/{id}");
-
-            var response = await httpClient.SendAsync(
-                request, HttpCompletionOption.ResponseHeadersRead);
-
-            response.EnsureSuccessStatusCode();
-
-            using (var responseStream = await response.Content.ReadAsStreamAsync())
-            {
-                var deserializedImage = await JsonSerializer.DeserializeAsync<Image>(responseStream);
-
-                if (deserializedImage == null)
-                {
-                    throw new Exception("Deserialized image must not be null.");
-                }
-
-                var editImageViewModel = new EditImageViewModel()
-                {
-                    Id = deserializedImage.Id,
-                    Title = deserializedImage.Title
-                };
-
-                return View(editImageViewModel);
-            }
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> EditImage(EditImageViewModel editImageViewModel)
-        {
-            if (!ModelState.IsValid)
-            {
-                return View();
-            }
-
-            // create an ImageForUpdate instance
-            var imageForUpdate = new ImageForUpdate(editImageViewModel.Title);
-
-            // serialize it
-            var serializedImageForUpdate = JsonSerializer.Serialize(imageForUpdate);
-
-            var httpClient = _httpClientFactory.CreateClient("APIClient");
-
-            var request = new HttpRequestMessage(
-                HttpMethod.Put,
-                $"/api/images/{editImageViewModel.Id}")
-            {
-                Content = new StringContent(
-                    serializedImageForUpdate,
-                    System.Text.Encoding.Unicode,
-                    "application/json")
+                Id = deserializedImage.Id,
+                Title = deserializedImage.Title
             };
 
-            var response = await httpClient.SendAsync(
-                request, HttpCompletionOption.ResponseHeadersRead);
-
-            response.EnsureSuccessStatusCode();
-
-            return RedirectToAction("Index");
+            return View(editImageViewModel);
         }
+    }
 
-        public async Task<IActionResult> DeleteImage(Guid id)
-        {
-            var httpClient = _httpClientFactory.CreateClient("APIClient");
-
-            var request = new HttpRequestMessage(
-                HttpMethod.Delete,
-                $"/api/images/{id}");
-
-            var response = await httpClient.SendAsync(
-                request, HttpCompletionOption.ResponseHeadersRead);
-
-            response.EnsureSuccessStatusCode();
-
-            return RedirectToAction("Index");
-        }
-
-        [Authorize(Policy = "UserCanAddImage")]
-        //[Authorize(Roles = "PayingUser")]
-        public IActionResult AddImage()
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> EditImage(EditImageViewModel editImageViewModel)
+    {
+        if (!ModelState.IsValid)
         {
             return View();
         }
 
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        [Authorize(Policy = "UserCanAddImage")]
-        //[Authorize(Roles = "PayingUser")]
-        public async Task<IActionResult> AddImage(AddImageViewModel addImageViewModel)
+        // create an ImageForUpdate instance
+        var imageForUpdate = new ImageForUpdate(editImageViewModel.Title);
+
+        // serialize it
+        var serializedImageForUpdate = JsonSerializer.Serialize(imageForUpdate);
+
+        var httpClient = _httpClientFactory.CreateClient("APIClient");
+
+        var request = new HttpRequestMessage(
+            HttpMethod.Put,
+            $"/api/images/{editImageViewModel.Id}")
         {
-            if (!ModelState.IsValid)
-            {
-                return View();
-            }
+            Content = new StringContent(
+                serializedImageForUpdate,
+                System.Text.Encoding.Unicode,
+                "application/json")
+        };
 
-            // create an ImageForCreation instance
-            ImageForCreation? imageForCreation = null;
+        var response = await httpClient.SendAsync(
+            request, HttpCompletionOption.ResponseHeadersRead);
 
-            // take the first (only) file in the Files list
-            var imageFile = addImageViewModel.Files.First();
+        response.EnsureSuccessStatusCode();
 
-            if (imageFile.Length > 0)
-            {
-                using (var fileStream = imageFile.OpenReadStream())
-                using (var ms = new MemoryStream())
-                {
-                    fileStream.CopyTo(ms);
-                    imageForCreation = new ImageForCreation(
-                        addImageViewModel.Title, ms.ToArray());
-                }
-            }
+        return RedirectToAction("Index");
+    }
 
-            // serialize it
-            var serializedImageForCreation = JsonSerializer.Serialize(imageForCreation);
+    public async Task<IActionResult> DeleteImage(Guid id)
+    {
+        var httpClient = _httpClientFactory.CreateClient("APIClient");
 
-            var httpClient = _httpClientFactory.CreateClient("APIClient");
+        var request = new HttpRequestMessage(
+            HttpMethod.Delete,
+            $"/api/images/{id}");
 
-            var request = new HttpRequestMessage(
-                HttpMethod.Post,
-                $"/api/images")
-            {
-                Content = new StringContent(
-                    serializedImageForCreation,
-                    System.Text.Encoding.Unicode,
-                    "application/json")
-            };
+        var response = await httpClient.SendAsync(
+            request, HttpCompletionOption.ResponseHeadersRead);
 
-            var response = await httpClient.SendAsync(
-                request, HttpCompletionOption.ResponseHeadersRead);
+        response.EnsureSuccessStatusCode();
 
-            response.EnsureSuccessStatusCode();
+        return RedirectToAction("Index");
+    }
 
-            return RedirectToAction("Index");
+    [Authorize(Policy = "UserCanAddImage")]
+    //[Authorize(Roles = "PayingUser")]
+    public IActionResult AddImage()
+    {
+        return View();
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    [Authorize(Policy = "UserCanAddImage")]
+    //[Authorize(Roles = "PayingUser")]
+    public async Task<IActionResult> AddImage(AddImageViewModel addImageViewModel)
+    {
+        if (!ModelState.IsValid)
+        {
+            return View();
         }
 
-        public async Task LogIdentityInformation()
+        // create an ImageForCreation instance
+        ImageForCreation? imageForCreation = null;
+
+        // take the first (only) file in the Files list
+        var imageFile = addImageViewModel.Files.First();
+
+        if (imageFile.Length > 0)
         {
-            // get the saved identity token
-            var identityToken = await HttpContext
-                .GetTokenAsync(OpenIdConnectParameterNames.IdToken);
-
-            // get the saved access token
-            var accessToken = await HttpContext
-                .GetTokenAsync(OpenIdConnectParameterNames.AccessToken);
-
-            // get the refresh token
-            var refreshToken = await HttpContext
-                .GetTokenAsync(OpenIdConnectParameterNames.RefreshToken);
-
-            var userClaimsStringBuilder = new StringBuilder();
-            foreach (var claim in User.Claims)
+            using (var fileStream = imageFile.OpenReadStream())
+            using (var ms = new MemoryStream())
             {
-                userClaimsStringBuilder.AppendLine(
-                    $"Claim type: {claim.Type} - Claim value: {claim.Value}");
+                fileStream.CopyTo(ms);
+                imageForCreation = new ImageForCreation(
+                    addImageViewModel.Title, ms.ToArray());
             }
-
-            // log token & claims
-            _logger.LogInformation($"Identity token & user claims: " +
-                $"\n{identityToken} \n{userClaimsStringBuilder}");
-            _logger.LogInformation($"Access token: " +
-                $"\n{accessToken}");
-            _logger.LogInformation($"Refresh token: " +
-                $"\n{refreshToken}");
         }
+
+        // serialize it
+        var serializedImageForCreation = JsonSerializer.Serialize(imageForCreation);
+
+        var httpClient = _httpClientFactory.CreateClient("APIClient");
+
+        var request = new HttpRequestMessage(
+            HttpMethod.Post,
+            $"/api/images")
+        {
+            Content = new StringContent(
+                serializedImageForCreation,
+                System.Text.Encoding.Unicode,
+                "application/json")
+        };
+
+        var response = await httpClient.SendAsync(
+            request, HttpCompletionOption.ResponseHeadersRead);
+
+        response.EnsureSuccessStatusCode();
+
+        return RedirectToAction("Index");
+    }
+
+    public async Task LogIdentityInformation()
+    {
+        // get the saved identity token
+        var identityToken = await HttpContext
+            .GetTokenAsync(OpenIdConnectParameterNames.IdToken);
+
+        // get the saved access token
+        var accessToken = await HttpContext
+            .GetTokenAsync(OpenIdConnectParameterNames.AccessToken);
+
+        // get the refresh token
+        var refreshToken = await HttpContext
+            .GetTokenAsync(OpenIdConnectParameterNames.RefreshToken);
+
+        var userClaimsStringBuilder = new StringBuilder();
+        foreach (var claim in User.Claims)
+        {
+            userClaimsStringBuilder.AppendLine(
+                $"Claim type: {claim.Type} - Claim value: {claim.Value}");
+        }
+
+        // log token & claims
+        _logger.LogInformation("Identity token & user claims: {token} {claims}",
+          identityToken, userClaimsStringBuilder);
+        _logger.LogInformation("Access token: {token}", accessToken);
+        _logger.LogInformation("Refresh token: {token}", refreshToken);
     }
 }

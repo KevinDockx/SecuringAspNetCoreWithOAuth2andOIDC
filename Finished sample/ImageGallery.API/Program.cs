@@ -52,24 +52,19 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
       });
 
 
-builder.Services.AddAuthorization(authorizationOptions =>
-{
-    authorizationOptions.AddPolicy(
-        "UserCanAddImage", AuthorizationPolicies.CanAddImage());
-    authorizationOptions.AddPolicy(
-        "ClientApplicationCanWrite", policyBuilder =>
+builder.Services.AddAuthorizationBuilder()
+    .AddPolicy("UserCanAddImage", AuthorizationPolicies.CanAddImage())
+    .AddPolicy("ClientApplicationCanWrite", policyBuilder =>
         {
             policyBuilder.RequireClaim("scope", "imagegalleryapi.write");
-        });
-    authorizationOptions.AddPolicy(
-        "MustOwnImage", policyBuilder =>
+        })
+    .AddPolicy("MustOwnImage", policyBuilder =>
         {
             policyBuilder.RequireAuthenticatedUser();
             policyBuilder.AddRequirements(
                 new MustOwnImageRequirement());
 
         });
-});
 
 var app = builder.Build();
 

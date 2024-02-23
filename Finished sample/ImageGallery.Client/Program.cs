@@ -16,10 +16,11 @@ JsonWebTokenHandler.DefaultInboundClaimTypeMap.Clear();
 
 builder.Services.AddAccessTokenManagement();
 
+var apiRoot = builder.Configuration["ImageGalleryAPIRoot"];
 // create an HttpClient used for accessing the API
 builder.Services.AddHttpClient("APIClient", client =>
 {
-    client.BaseAddress = new Uri(builder.Configuration["ImageGalleryAPIRoot"]);
+    client.BaseAddress = apiRoot == null ? null : new Uri(apiRoot);
     client.DefaultRequestHeaders.Clear();
     client.DefaultRequestHeaders.Add(HeaderNames.Accept, "application/json");
 }).AddUserAccessTokenHandler();
@@ -73,11 +74,8 @@ builder.Services.AddAuthentication(options =>
     }; 
 });
 
-builder.Services.AddAuthorization(authorizationOptions =>
-{
-    authorizationOptions.AddPolicy("UserCanAddImage",
-        AuthorizationPolicies.CanAddImage());
-});
+builder.Services.AddAuthorizationBuilder()
+    .AddPolicy("UserCanAddImage", AuthorizationPolicies.CanAddImage());
 
 
 var app = builder.Build();

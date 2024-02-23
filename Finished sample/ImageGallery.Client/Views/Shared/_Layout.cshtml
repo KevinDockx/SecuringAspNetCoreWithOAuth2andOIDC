@@ -32,7 +32,7 @@
                             <a class="nav-link text-dark" asp-area="" asp-controller="Gallery" asp-action="AddImage">Add an Image</a>
                         </li>
                         }
-                          @if (User.Identity.IsAuthenticated)
+                          @if (User.Identity?.IsAuthenticated ?? false)
                           {
                          <li>
                             <a class="nav-link text-dark" asp-area="" asp-controller="Authentication" asp-action="Logout">Logout</a> </li>

@@ -7,10 +7,12 @@ builder.Services.AddControllersWithViews()
     .AddJsonOptions(configure => 
         configure.JsonSerializerOptions.PropertyNamingPolicy = null);
 
+
+var apiRoot = builder.Configuration["ImageGalleryAPIRoot"];
 // create an HttpClient used for accessing the API
 builder.Services.AddHttpClient("APIClient", client =>
 {
-    client.BaseAddress = new Uri(builder.Configuration["ImageGalleryAPIRoot"]);
+    client.BaseAddress = apiRoot == null ? null : new Uri(apiRoot);
     client.DefaultRequestHeaders.Clear();
     client.DefaultRequestHeaders.Add(HeaderNames.Accept, "application/json");
 });
