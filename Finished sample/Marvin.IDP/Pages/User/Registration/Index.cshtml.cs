@@ -10,23 +10,17 @@ namespace Marvin.IDP.Pages.User.Registration
 {
     [AllowAnonymous]
     [SecurityHeaders]
-    public class IndexModel : PageModel
+    public class IndexModel(
+        ILocalUserService localUserService,
+        IIdentityServerInteractionService interaction) : PageModel
     {
-        private readonly ILocalUserService _localUserService;
-        private readonly IIdentityServerInteractionService _interaction;
-
-        public IndexModel(
-            ILocalUserService localUserService,
-            IIdentityServerInteractionService interaction)
-        {
-            _localUserService = localUserService ??
+        private readonly ILocalUserService _localUserService = localUserService ??
                 throw new ArgumentNullException(nameof(localUserService));
-            _interaction = interaction ??
+        private readonly IIdentityServerInteractionService _interaction = interaction ??
                 throw new ArgumentNullException(nameof(interaction));
-        }
 
         [BindProperty]
-        public InputModel Input { get; set; }
+        public InputModel Input { get; set; } = new InputModel();
 
         public IActionResult OnGet(string returnUrl)
         {
@@ -79,7 +73,7 @@ namespace Marvin.IDP.Pages.User.Registration
             });
 
             _localUserService.AddUser(userToCreate, 
-                Input.Password);
+                Input.Password ?? string.Empty);
             await _localUserService.SaveChangesAsync();
 
             // create an activation link - we need an absolute URL, therefore

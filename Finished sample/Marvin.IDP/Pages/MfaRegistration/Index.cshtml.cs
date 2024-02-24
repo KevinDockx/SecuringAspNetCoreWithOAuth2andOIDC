@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using System.Net;
 using System.Security.Cryptography;
+using System.Security.Cryptography.Xml;
 using System.Text;
 
 namespace Marvin.IDP.Pages.MfaRegistration
@@ -14,13 +15,13 @@ namespace Marvin.IDP.Pages.MfaRegistration
     public class IndexModel : PageModel
     {
         private readonly ILocalUserService _localUserService;
-        private readonly char[] chars =
+        private readonly char[] _chars =
            "ABCDEFGHIJKLMNOPQRSTUVWXYZ".ToCharArray();
 
-        public ViewModel View { get; set; }
+        public ViewModel View { get; set; } = new ViewModel() { KeyUri = string.Empty };
 
         [BindProperty]
-        public InputModel Input { get; set; }
+        public InputModel Input { get; set; } = new InputModel() { Secret = string.Empty };
 
         public IndexModel(ILocalUserService localUserService)
         {
@@ -36,20 +37,20 @@ namespace Marvin.IDP.Pages.MfaRegistration
             for (int i = 0; i < 16; i++)
             {
                 var rnd = BitConverter.ToUInt32(tokenData, i * 4);
-                var idx = rnd % chars.Length;
+                var idx = rnd % _chars.Length;
 
-                result.Append(chars[idx]);
+                result.Append(_chars[idx]);
             }
 
             var secret = result.ToString();
 
             var subject = User.FindFirst(JwtClaimTypes.Subject)?.Value;
-            var user = await _localUserService.GetUserBySubjectAsync(subject);
+            var user = await _localUserService.GetUserBySubjectAsync(subject ?? "");
 
             var keyUri = string.Format(
                "otpauth://totp/{0}:{1}?secret={2}&issuer={0}",
                WebUtility.UrlEncode("Marvin"),
-               WebUtility.UrlEncode(user.Email),
+               WebUtility.UrlEncode(user?.Email),
                secret);
 
             View = new ()
@@ -68,7 +69,8 @@ namespace Marvin.IDP.Pages.MfaRegistration
             if (ModelState.IsValid)
             {
                 var subject = User.FindFirst(JwtClaimTypes.Subject)?.Value;
-                if (await _localUserService
+     
+                if (subject != null && await _localUserService
                     .AddUserSecret(subject, "TOTP", Input.Secret))
                 {
                     await _localUserService.SaveChangesAsync();

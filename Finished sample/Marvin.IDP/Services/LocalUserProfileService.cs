@@ -5,15 +5,10 @@ using System.Security.Claims;
 
 namespace Marvin.IDP.Services
 {
-    public class LocalUserProfileService : IProfileService
+    public class LocalUserProfileService(ILocalUserService localUserService) : IProfileService
     {
-        private readonly ILocalUserService _localUserService;
-
-        public LocalUserProfileService(ILocalUserService localUserService)
-        {
-            _localUserService = localUserService ??
+        private readonly ILocalUserService _localUserService = localUserService ??
                 throw new ArgumentNullException(nameof(localUserService));
-        }
 
         public async Task GetProfileDataAsync(ProfileDataRequestContext context)
         {

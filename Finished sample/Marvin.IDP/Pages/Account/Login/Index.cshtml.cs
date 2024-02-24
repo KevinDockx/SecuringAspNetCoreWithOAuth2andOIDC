@@ -94,13 +94,13 @@ public class Index : PageModel
 
         if (ModelState.IsValid)
         {
-             if (await _localUserService.ValidateCredentialsAsync(Input.Username, Input.Password))
+            if (await _localUserService.ValidateCredentialsAsync(Input.Username, Input.Password))
             {
                 var user = await _localUserService.GetUserByUserNameAsync(Input.Username);
 
                 // validate the second factor 
                 // first, get the totp secret for this user 
-                var userSecret = await _localUserService.GetUserSecretAsync(user.Subject, "TOTP");
+                var userSecret = await _localUserService.GetUserSecretAsync(user?.Subject ?? "", "TOTP");
                 if (userSecret == null)
                 {
                     ModelState.AddModelError("usersecret", "No second factor secret has been registered - please contact the helpdesk.");
@@ -198,7 +198,7 @@ public class Index : PageModel
                 EnableLocalLogin = local,
             };
 
-            Input.Username = context.LoginHint;
+            Input.Username = context.LoginHint ?? string.Empty;
 
             if (!local)
             {

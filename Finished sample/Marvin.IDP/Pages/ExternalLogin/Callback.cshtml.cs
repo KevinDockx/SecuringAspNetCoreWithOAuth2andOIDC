@@ -78,7 +78,7 @@ public class Callback : PageModel
 
         // find external user
         var user = await _localUserService
-            .FindUserByExternalProviderAsync(provider, providerUserId);
+            .FindUserByExternalProviderAsync(provider ?? "", providerUserId);
         if (user == null)
         {
             // remove the userid claim: that information is
@@ -122,10 +122,10 @@ public class Callback : PageModel
                 // mapping exists
                 foreach (var claim in claims)
                 {
-                    if (_facebookClaimTypeMap.ContainsKey(claim.Type))
+                    if (_facebookClaimTypeMap.TryGetValue(claim.Type, out string? value))
                     {
                         mappedClaims.Add(
-                            new Claim(_facebookClaimTypeMap[claim.Type],
+                            new Claim(value,
                             claim.Value));
                     }
                 }
@@ -147,13 +147,18 @@ public class Callback : PageModel
         CaptureExternalLoginContext(result, additionalLocalClaims,
             localSignInProps);
 
+
+
         // issue authentication cookie for user
+#pragma warning disable CS8602 // Dereference of a possibly null reference. 
+        // user is not null
         var isuser = new IdentityServerUser(user.Subject)
         {
-            DisplayName = user.UserName,
+            DisplayName = user?.UserName,
             IdentityProvider = provider,
             AdditionalClaims = additionalLocalClaims
         };
+#pragma warning restore CS8602 // Dereference of a possibly null reference.
 
         await HttpContext.SignInAsync(isuser, localSignInProps);
 
@@ -190,7 +195,7 @@ public class Callback : PageModel
     {
         // if the external system sent a session id claim, copy it over
         // so we can use it for single sign-out
-        var sid = externalResult.Principal.Claims
+        var sid = externalResult?.Principal?.Claims
             .FirstOrDefault(x => x.Type == JwtClaimTypes.SessionId);
         if (sid != null)
         {
@@ -198,7 +203,7 @@ public class Callback : PageModel
         }
 
         // if the external provider issued an id_token, we'll keep it for signout
-        var idToken = externalResult.Properties.GetTokenValue("id_token");
+        var idToken = externalResult?.Properties?.GetTokenValue("id_token");
         if (idToken != null)
         {
             localSignInProps.StoreTokens(

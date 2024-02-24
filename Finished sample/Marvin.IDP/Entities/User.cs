@@ -9,7 +9,7 @@ namespace Marvin.IDP.Entities
 
         [MaxLength(200)]
         [Required]
-        public string Subject { get; set; }
+        public required string Subject { get; set; }
 
         [MaxLength(200)]
         public string? UserName { get; set; }

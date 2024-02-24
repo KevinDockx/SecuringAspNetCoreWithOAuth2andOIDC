@@ -8,22 +8,17 @@ namespace Marvin.IDP.Pages.User.Activation
     [SecurityHeaders]
     [AllowAnonymous]
 
-    public class IndexModel : PageModel
+    public class IndexModel(ILocalUserService localUserService) : PageModel
     {
-        private readonly ILocalUserService _localUserService;
-
-        public IndexModel(ILocalUserService localUserService)
-        {
-            _localUserService = localUserService ??
+        private readonly ILocalUserService _localUserService = localUserService ??
                 throw new ArgumentNullException(nameof(localUserService));
-        }
 
         [BindProperty]
-        public InputModel Input { get; set; }
+        public InputModel Input { get; set; } = new InputModel() { Message = string.Empty };
 
         public async Task<IActionResult> OnGet(string securityCode)
         {
-            Input = new InputModel();
+            Input = new InputModel() { Message = string.Empty };
 
             if (await _localUserService.ActivateUserAsync(securityCode))
             {

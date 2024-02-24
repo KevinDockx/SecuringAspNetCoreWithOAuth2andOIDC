@@ -26,7 +26,7 @@
         <li>
             Click <a href="~/ciba/all">here</a> to view your pending CIBA login requests.
         </li>
-        @if (User.Identity.IsAuthenticated)
+        @if (User?.Identity?.IsAuthenticated ?? false)
         {
             <li>
                 Click <a href="~/mfaregistration/index">here</a> to register for multi-factor authentication.

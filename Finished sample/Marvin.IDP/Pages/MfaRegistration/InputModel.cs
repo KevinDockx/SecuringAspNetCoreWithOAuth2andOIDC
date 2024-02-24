@@ -2,7 +2,7 @@
 {
     public class InputModel
     {
-        public string Secret { get; set; }
+        public required string Secret { get; set; }
 
     }
 }

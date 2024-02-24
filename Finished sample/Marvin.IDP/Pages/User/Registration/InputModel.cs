@@ -5,37 +5,37 @@ namespace Marvin.IDP.Pages.User.Registration
 {
     public class InputModel
     {
-        public string ReturnUrl { get; set; }
+        public string ReturnUrl { get; set; } = string.Empty;
 
         [MaxLength(200)]
         [Display(Name = "Username")]
-        public string UserName { get; set; }
+        public string? UserName { get; set; }  
 
         [MaxLength(200)]
         [DataType(DataType.Password)]
         [Display(Name = "Password")]
-        public string Password { get; set; }
+        public string? Password { get; set; }
 
         [Required]
         [MaxLength(250)]
         [Display(Name = "Given name")]
-        public string GivenName { get; set; }
+        public string GivenName { get; set; } = string.Empty;
 
         [Required]
         [MaxLength(250)]
         [Display(Name = "Family name")]
-        public string FamilyName { get; set; }
+        public string FamilyName { get; set; } = string.Empty;
 
         [Required]
         [MaxLength(2)]
         [Display(Name = "Country")]
-        public string Country { get; set; }
+        public string Country { get; set; } = string.Empty;
 
         [Required]
         [MaxLength(200)]
         [Display(Name = "Email")]
         [EmailAddress]
-        public string Email { get; set; }
+        public string Email { get; set; } = string.Empty;
 
         public SelectList CountryCodes { get; set; } =
             new (  new[] {

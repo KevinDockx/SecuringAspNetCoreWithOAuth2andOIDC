@@ -7,22 +7,16 @@ using System.Security.Cryptography;
 
 namespace Marvin.IDP.Services
 {
-    public class LocalUserService : ILocalUserService
+    public class LocalUserService(
+        IdentityDbContext context,
+        IPasswordHasher<User> passwordHasher) : ILocalUserService
     {
-        private readonly IdentityDbContext _context;
-        private readonly IPasswordHasher<User> _passwordHasher;
-
-        public LocalUserService(
-            IdentityDbContext context,
-            IPasswordHasher<User> passwordHasher)
-        {
-            _context = context ?? 
+        private readonly IdentityDbContext _context = context ??
                 throw new ArgumentNullException(nameof(context));
-            _passwordHasher = passwordHasher ?? 
+        private readonly IPasswordHasher<User> _passwordHasher = passwordHasher ??
                 throw new ArgumentNullException(nameof(passwordHasher));
-        }
 
-        public async Task<User> FindUserByExternalProviderAsync(
+        public async Task<User?> FindUserByExternalProviderAsync(
             string provider, string providerIdentityKey)
         {
             if (string.IsNullOrWhiteSpace(provider))
@@ -81,7 +75,7 @@ namespace Marvin.IDP.Services
             return user;
         }
 
-        public async Task<User> GetUserByEmailAsync(string email)
+        public async Task<User?> GetUserByEmailAsync(string email)
         {
             ArgumentNullException.ThrowIfNull(email);
 
@@ -109,7 +103,8 @@ namespace Marvin.IDP.Services
                 throw new ArgumentNullException(nameof(providerIdentityKey));
             }
 
-            var user = await GetUserBySubjectAsync(subject);
+            var user = await GetUserBySubjectAsync(subject) ?? throw new Exception("User not found");
+          
             user.Logins.Add(new UserLogin()
             {
                 Provider = provider,
@@ -147,7 +142,7 @@ namespace Marvin.IDP.Services
             return true;
         }
 
-        public async Task<UserSecret> GetUserSecretAsync(
+        public async Task<UserSecret?> GetUserSecretAsync(
             string subject, string name)
         {
             if (string.IsNullOrWhiteSpace(subject))
@@ -161,7 +156,7 @@ namespace Marvin.IDP.Services
             }
 
             return await _context.UserSecrets
-                .FirstOrDefaultAsync(u => u.User.Subject == subject && u.Name == name);
+                .FirstOrDefaultAsync(u => u.User != null && u.User.Subject == subject && u.Name == name);
         }
 
         public async Task<bool> IsUserActive(string subject)
@@ -206,12 +201,12 @@ namespace Marvin.IDP.Services
             // return (user.Password == password);
             var verificationResult = 
                 _passwordHasher.VerifyHashedPassword(
-                    user, user.Password, password);
+                    user, user.Password ?? string.Empty, password);
             return (verificationResult == PasswordVerificationResult.Success);
 
         }
 
-        public async Task<User> GetUserByUserNameAsync(string userName)
+        public async Task<User?> GetUserByUserNameAsync(string userName)
         {
             if (string.IsNullOrWhiteSpace(userName))
             {
@@ -230,10 +225,10 @@ namespace Marvin.IDP.Services
             }
 
             return await _context.UserClaims.Where(u => 
-                u.User.Subject == subject).ToListAsync();
+                u.User != null && u.User.Subject == subject).ToListAsync();
         }
 
-        public async Task<User> GetUserBySubjectAsync(string subject)
+        public async Task<User?> GetUserBySubjectAsync(string subject)
         {
             if (string.IsNullOrWhiteSpace(subject))
             {
@@ -246,10 +241,7 @@ namespace Marvin.IDP.Services
 
         public void AddUser(User userToAdd, string password)
         {
-            if (userToAdd == null) 
-            {
-                throw new ArgumentNullException(nameof(userToAdd));
-            }
+            ArgumentNullException.ThrowIfNull(userToAdd);
 
             if (_context.Users.Any(u => u.UserName == userToAdd.UserName))
             {

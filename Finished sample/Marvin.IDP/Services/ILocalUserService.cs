@@ -5,17 +5,17 @@ namespace Marvin.IDP.Services
 {
     public interface ILocalUserService
     {
-        Task<UserSecret> GetUserSecretAsync(string subject, string name);
+        Task<UserSecret?> GetUserSecretAsync(string subject, string name);
 
         Task<bool> AddUserSecret(string subject, string name, string secret);
 
-        Task<User> GetUserByEmailAsync(string email);
+        Task<User?> GetUserByEmailAsync(string email);
         Task AddExternalProviderToUser(
                    string subject,
                    string provider,
                    string providerIdentityKey);
 
-        Task<User> FindUserByExternalProviderAsync(
+        Task<User?> FindUserByExternalProviderAsync(
             string provider, 
             string providerIdentityKey);
 
@@ -30,10 +30,10 @@ namespace Marvin.IDP.Services
         Task<IEnumerable<UserClaim>> GetUserClaimsBySubjectAsync(
             string subject);
 
-        Task<User> GetUserByUserNameAsync(
+        Task<User?> GetUserByUserNameAsync(
             string userName);
 
-        Task<User> GetUserBySubjectAsync(
+        Task<User?> GetUserBySubjectAsync(
             string subject);
 
         void AddUser 
