@@ -3,11 +3,15 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31919.166
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ImageGallery.Client", "ImageGallery.Client\ImageGallery.Client.csproj", "{6099AF9E-B3E3-4676-A858-D59935D5330F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ImageGallery.Client", "ImageGallery.Client\ImageGallery.Client.csproj", "{6099AF9E-B3E3-4676-A858-D59935D5330F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ImageGallery.API", "ImageGallery.API\ImageGallery.API.csproj", "{1749394D-2017-4D16-ADD7-B49AEFD44F7A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ImageGallery.API", "ImageGallery.API\ImageGallery.API.csproj", "{1749394D-2017-4D16-ADD7-B49AEFD44F7A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ImageGallery.Model", "ImageGallery.Model\ImageGallery.Model.csproj", "{6801DFE6-631B-427F-8DA4-DEB196D93AB3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ImageGallery.Model", "ImageGallery.Model\ImageGallery.Model.csproj", "{6801DFE6-631B-427F-8DA4-DEB196D93AB3}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Dar.IDP", "..\..\Dar.IDP\Dar.IDP.csproj", "{2D881925-A24A-45D2-9901-F275A2B5C870}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ImageGallery.Authorization", "ImageGallery.Authorization\ImageGallery.Authorization.csproj", "{342BB237-D60F-498E-93D0-FC76E5864C7D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -27,6 +31,14 @@ Global
 		{6801DFE6-631B-427F-8DA4-DEB196D93AB3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6801DFE6-631B-427F-8DA4-DEB196D93AB3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6801DFE6-631B-427F-8DA4-DEB196D93AB3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2D881925-A24A-45D2-9901-F275A2B5C870}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2D881925-A24A-45D2-9901-F275A2B5C870}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2D881925-A24A-45D2-9901-F275A2B5C870}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2D881925-A24A-45D2-9901-F275A2B5C870}.Release|Any CPU.Build.0 = Release|Any CPU
+		{342BB237-D60F-498E-93D0-FC76E5864C7D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{342BB237-D60F-498E-93D0-FC76E5864C7D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{342BB237-D60F-498E-93D0-FC76E5864C7D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{342BB237-D60F-498E-93D0-FC76E5864C7D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

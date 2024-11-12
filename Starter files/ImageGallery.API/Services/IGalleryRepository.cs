@@ -4,7 +4,7 @@ namespace ImageGallery.API.Services
 {
     public interface IGalleryRepository
     {
-        Task<IEnumerable<Image>> GetImagesAsync();
+        Task<IEnumerable<Image>> GetImagesAsync(string ownerId);
         Task<bool> IsImageOwnerAsync(Guid id, string ownerId);
         Task<Image?> GetImageAsync(Guid id);
         Task<bool> ImageExistsAsync(Guid id);
