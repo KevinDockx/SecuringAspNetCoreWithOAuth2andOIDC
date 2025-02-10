@@ -1,5 +1,5 @@
 # Securing ASP.NET Core with OAuth2 and OpenID Connect
-Starter files &amp; fully functioning finished sample code for my Securing ASP.NET Core with OAuth2 and OpenID Connect course, currently targeting .NET 8 and .NET 9.
+Starter files and fully functioning finished sample code for my Securing ASP.NET Core with OAuth2 and OpenID Connect course, currently targeting .NET 8 and .NET 9.
 
 - The **main** branch targets .NET 8 and exactly matches the course.
 - The **net9** branch targets .NET 9. 
