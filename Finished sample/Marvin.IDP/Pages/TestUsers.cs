@@ -2,11 +2,9 @@
 // See LICENSE in the project root for license information.
 
 
-using IdentityModel;
-using System.Security.Claims;
-using System.Text.Json;
-using Duende.IdentityServer;
+using Duende.IdentityModel;
 using Duende.IdentityServer.Test;
+using System.Security.Claims;
 
 namespace Marvin.IDP;
 
@@ -16,21 +14,21 @@ public class TestUsers
     {
         get
         {
-            return new List<TestUser>
-            {
+            return
+            [
                 new TestUser
                 {
                     SubjectId = "d860efca-22d9-47fd-8249-791ba61b07c7",
                     Username = "David",
                     Password = "password",
 
-                    Claims = new List<Claim>
-                    {
+                    Claims =
+                    [
                         new Claim("role", "FreeUser"),
                         new Claim(JwtClaimTypes.GivenName, "David"),
                         new Claim(JwtClaimTypes.FamilyName, "Flagg"),
                         new Claim("country", "nl")
-                    }
+                    ]
                 },
                 new TestUser
                 {
@@ -38,15 +36,15 @@ public class TestUsers
                     Username = "Emma",
                     Password = "password",
 
-                    Claims = new List<Claim>
-                    {
+                    Claims =
+                    [
                         new Claim("role", "PayingUser"),
                         new Claim(JwtClaimTypes.GivenName, "Emma"),
                         new Claim(JwtClaimTypes.FamilyName, "Flagg"),
                         new Claim("country", "be")
-                    }
+                    ]
                 }
-            };
+            ];
         }
     }
 }

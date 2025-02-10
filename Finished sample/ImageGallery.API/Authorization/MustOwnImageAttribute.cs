@@ -6,6 +6,6 @@ public class MustOwnImageAttribute : AuthorizeAttribute, IAuthorizationRequireme
 {
     public IEnumerable<IAuthorizationRequirement> GetRequirements()
     {
-        return new[] { new MustOwnImageRequirement() };
+        return [new MustOwnImageRequirement()];
     }
 }

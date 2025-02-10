@@ -31,9 +31,9 @@ namespace Marvin.IDP.Entities
         [ConcurrencyCheck]
         public string ConcurrencyStamp { get; set; } = Guid.NewGuid().ToString();
 
-        public ICollection<UserClaim> Claims { get; set; } = new List<UserClaim>();
-        public ICollection<UserLogin> Logins { get; set; } = new List<UserLogin>();
-        public ICollection<UserSecret> Secrets { get; set; } = new List<UserSecret>();
+        public ICollection<UserClaim> Claims { get; set; } = [];
+        public ICollection<UserLogin> Logins { get; set; } = [];
+        public ICollection<UserSecret> Secrets { get; set; } = [];
 
     }
 
