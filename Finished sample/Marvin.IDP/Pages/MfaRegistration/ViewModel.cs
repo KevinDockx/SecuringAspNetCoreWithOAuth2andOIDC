@@ -2,7 +2,7 @@
 {
     public class ViewModel()
     {
-        public required string KeyUri { get; set; } 
+        public required string KeyUri { get; set; }
 
     }
 }

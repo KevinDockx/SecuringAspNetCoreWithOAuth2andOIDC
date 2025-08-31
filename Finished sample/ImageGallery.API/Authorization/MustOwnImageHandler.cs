@@ -6,13 +6,13 @@ namespace ImageGallery.API.Authorization;
 public class MustOwnImageHandler(IGalleryRepository galleryRepository,
     IHttpContextAccessor httpContextAccessor) : AuthorizationHandler<MustOwnImageRequirement>
 {
-    private readonly IGalleryRepository _galleryRepository = galleryRepository ??
+    readonly IGalleryRepository _galleryRepository = galleryRepository ??
             throw new ArgumentNullException(nameof(galleryRepository));
-    private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor ??
+    readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor ??
             throw new ArgumentNullException(nameof(httpContextAccessor));
 
     protected override async Task HandleRequirementAsync(
-        AuthorizationHandlerContext context, 
+        AuthorizationHandlerContext context,
         MustOwnImageRequirement requirement)
     {
         var imageId = _httpContextAccessor.HttpContext?

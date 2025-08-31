@@ -7,7 +7,7 @@ namespace Marvin.IDP.Services
 {
     public class LocalUserProfileService(ILocalUserService localUserService) : IProfileService
     {
-        private readonly ILocalUserService _localUserService = localUserService ??
+        readonly ILocalUserService _localUserService = localUserService ??
                 throw new ArgumentNullException(nameof(localUserService));
 
         public async Task GetProfileDataAsync(ProfileDataRequestContext context)
@@ -18,17 +18,18 @@ namespace Marvin.IDP.Services
                 .ToList();
 
             context.AddRequestedClaims(
-                claimsForUser.Select(c => new Claim(c.Type, c.Value)).ToList());
+                claimsForUser.ConvertAll(c => new Claim(c.Type, c.Value)));
 
         }
 
         public async Task IsActiveAsync(IsActiveContext context)
         {
             context.IsActive = true;
-             
+
             //var subjectId = context.Subject.GetSubjectId();
             //context.IsActive = await _localUserService
             //    .IsUserActive(subjectId);
+            await Task.CompletedTask;
         }
     }
 }

@@ -14,9 +14,9 @@ using System.Diagnostics.CodeAnalysis;
 [assembly: SuppressMessage("Reliability", "CA2007:Consider calling ConfigureAwait on the awaited task", Justification = "No need for ConfigureAwait in ASP.NET Core application code, as there is no SynchronizationContext.")]
 
 // page specific
-[assembly: SuppressMessage("Design", "CA1002:Do not expose generic lists", Justification = "TestUsers are not designed to be extended", Scope = "member", Target = "~P:Marvin.IDP.TestUsers.Users")]
-[assembly: SuppressMessage("Design", "CA1034:Nested types should not be visible", Justification = "ExternalProvider is nested by design", Scope = "type", Target = "~T:Marvin.IDP.Pages.Login.ViewModel.ExternalProvider")]
-[assembly: SuppressMessage("Naming", "CA1716:Identifiers should not match keywords", Justification = "This namespace is just for organization, and won't be referenced elsewhere", Scope = "namespace", Target = "~N:Marvin.IDP.Pages.Error")]
+//[assembly: SuppressMessage("Design", "CA1002:Do not expose generic lists", Justification = "TestUsers are not designed to be extended", Scope = "member", Target = "~P:Marvin.IDP.TestUsers.Users")]
+//[assembly: SuppressMessage("Design", "CA1034:Nested types should not be visible", Justification = "ExternalProvider is nested by design", Scope = "type", Target = "~T:Marvin.IDP.Pages.Login.ViewModel.ExternalProvider")]
+//[assembly: SuppressMessage("Naming", "CA1716:Identifiers should not match keywords", Justification = "This namespace is just for organization, and won't be referenced elsewhere", Scope = "namespace", Target = "~N:Marvin.IDP.Pages.Error")]
 [assembly: SuppressMessage("Naming", "CA1724:Type names should not match namespaces", Justification = "Namespaces of pages are not likely to be used elsewhere, so there is little chance of confusion", Scope = "type", Target = "~T:Marvin.IDP.Pages.Ciba.Consent")]
 [assembly: SuppressMessage("Naming", "CA1724:Type names should not match namespaces", Justification = "Namespaces of pages are not likely to be used elsewhere, so there is little chance of confusion", Scope = "type", Target = "~T:Marvin.IDP.Pages.Extensions")]
-[assembly: SuppressMessage("Performance", "CA1805:Do not initialize unnecessarily", Justification = "This is for clarity and consistency with the surrounding code", Scope = "member", Target = "~F:Marvin.IDP.Pages.Logout.LogoutOptions.AutomaticRedirectAfterSignOut")]
+//[assembly: SuppressMessage("Performance", "CA1805:Do not initialize unnecessarily", Justification = "This is for clarity and consistency with the surrounding code", Scope = "member", Target = "~F:Marvin.IDP.Pages.Logout.LogoutOptions.AutomaticRedirectAfterSignOut")]

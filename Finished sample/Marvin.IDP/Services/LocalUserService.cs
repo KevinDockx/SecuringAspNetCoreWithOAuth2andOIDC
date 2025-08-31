@@ -11,9 +11,9 @@ namespace Marvin.IDP.Services
         IdentityDbContext context,
         IPasswordHasher<User> passwordHasher) : ILocalUserService
     {
-        private readonly IdentityDbContext _context = context ??
+        readonly IdentityDbContext _context = context ??
                 throw new ArgumentNullException(nameof(context));
-        private readonly IPasswordHasher<User> _passwordHasher = passwordHasher ??
+        readonly IPasswordHasher<User> _passwordHasher = passwordHasher ??
                 throw new ArgumentNullException(nameof(passwordHasher));
 
         public async Task<User?> FindUserByExternalProviderAsync(
@@ -104,7 +104,7 @@ namespace Marvin.IDP.Services
             }
 
             var user = await GetUserBySubjectAsync(subject) ?? throw new Exception("User not found");
-          
+
             user.Logins.Add(new UserLogin()
             {
                 Provider = provider,
@@ -112,7 +112,7 @@ namespace Marvin.IDP.Services
             });
         }
 
-        public async Task<bool> AddUserSecret(string subject, 
+        public async Task<bool> AddUserSecret(string subject,
             string name, string secret)
         {
             if (string.IsNullOrWhiteSpace(subject))
@@ -137,26 +137,20 @@ namespace Marvin.IDP.Services
                 return false;
             }
 
-            user.Secrets.Add(new UserSecret() 
-                { Name = name, Secret = secret });
+            user.Secrets.Add(new UserSecret()
+            { Name = name, Secret = secret });
             return true;
         }
 
         public async Task<UserSecret?> GetUserSecretAsync(
             string subject, string name)
         {
-            if (string.IsNullOrWhiteSpace(subject))
-            {
-                throw new ArgumentNullException(nameof(subject));
-            }
-
-            if (string.IsNullOrWhiteSpace(name))
-            {
-                throw new ArgumentNullException(nameof(name));
-            }
-
-            return await _context.UserSecrets
-                .FirstOrDefaultAsync(u => u.User != null && u.User.Subject == subject && u.Name == name);
+            return string.IsNullOrWhiteSpace(subject)
+                ? throw new ArgumentNullException(nameof(subject))
+                : string.IsNullOrWhiteSpace(name)
+                    ? throw new ArgumentNullException(nameof(name))
+                    : await _context.UserSecrets
+                        .FirstOrDefaultAsync(u => u.User != null && u.User.Subject == subject && u.Name == name);
         }
 
         public async Task<bool> IsUserActive(string subject)
@@ -168,12 +162,7 @@ namespace Marvin.IDP.Services
 
             var user = await GetUserBySubjectAsync(subject);
 
-            if (user == null)
-            {
-                return false;
-            }
-
-            return user.Active;
+            return user?.Active == true;
         }
 
         public async Task<bool> ValidateCredentialsAsync(string userName,
@@ -199,43 +188,34 @@ namespace Marvin.IDP.Services
 
             // Validate credentials
             // return (user.Password == password);
-            var verificationResult = 
+            var verificationResult =
                 _passwordHasher.VerifyHashedPassword(
                     user, user.Password ?? string.Empty, password);
-            return (verificationResult == PasswordVerificationResult.Success);
+            return verificationResult == PasswordVerificationResult.Success;
 
         }
 
         public async Task<User?> GetUserByUserNameAsync(string userName)
         {
-            if (string.IsNullOrWhiteSpace(userName))
-            {
-                throw new ArgumentNullException(nameof(userName));
-            }
-
-            return await _context.Users
+            return string.IsNullOrWhiteSpace(userName)
+                ? throw new ArgumentNullException(nameof(userName))
+                : await _context.Users
                  .FirstOrDefaultAsync(u => u.UserName == userName);
         }
 
         public async Task<IEnumerable<UserClaim>> GetUserClaimsBySubjectAsync(string subject)
         {
-            if (string.IsNullOrWhiteSpace(subject))
-            {
-                throw new ArgumentNullException(nameof(subject));
-            }
-
-            return await _context.UserClaims.Where(u => 
+            return string.IsNullOrWhiteSpace(subject)
+                ? throw new ArgumentNullException(nameof(subject))
+                : (IEnumerable<UserClaim>)await _context.UserClaims.Where(u =>
                 u.User != null && u.User.Subject == subject).ToListAsync();
         }
 
         public async Task<User?> GetUserBySubjectAsync(string subject)
         {
-            if (string.IsNullOrWhiteSpace(subject))
-            {
-                throw new ArgumentNullException(nameof(subject));
-            }
-
-            return await _context.Users.FirstOrDefaultAsync(u => 
+            return string.IsNullOrWhiteSpace(subject)
+                ? throw new ArgumentNullException(nameof(subject))
+                : await _context.Users.FirstOrDefaultAsync(u =>
                 u.Subject == subject);
         }
 
@@ -260,7 +240,7 @@ namespace Marvin.IDP.Services
             userToAdd.SecurityCodeExpirationDate = DateTime.UtcNow.AddHours(1);
 
             // hash & salt the password
-            userToAdd.Password = 
+            userToAdd.Password =
                 _passwordHasher.HashPassword(userToAdd, password);
 
             _context.Users.Add(userToAdd);
@@ -290,7 +270,7 @@ namespace Marvin.IDP.Services
 
         public async Task<bool> SaveChangesAsync()
         {
-            return (await _context.SaveChangesAsync() > 0);
+            return await _context.SaveChangesAsync() > 0;
         }
     }
 }

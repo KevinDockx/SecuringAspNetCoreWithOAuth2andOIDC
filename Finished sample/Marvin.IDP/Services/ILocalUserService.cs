@@ -16,10 +16,10 @@ namespace Marvin.IDP.Services
                    string providerIdentityKey);
 
         Task<User?> FindUserByExternalProviderAsync(
-            string provider, 
+            string provider,
             string providerIdentityKey);
 
-        public User AutoProvisionUser(string provider,
+        User AutoProvisionUser(string provider,
            string providerIdentityKey,
            IEnumerable<Claim> claims);
 
@@ -36,8 +36,8 @@ namespace Marvin.IDP.Services
         Task<User?> GetUserBySubjectAsync(
             string subject);
 
-        void AddUser 
-            (User userToAdd, 
+        void AddUser
+            (User userToAdd,
             string password);
 
         Task<bool> IsUserActive(

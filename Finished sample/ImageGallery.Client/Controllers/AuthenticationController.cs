@@ -10,7 +10,7 @@ namespace ImageGallery.Client.Controllers;
 
 public class AuthenticationController(IHttpClientFactory httpClientFactory) : Controller
 {
-    private readonly IHttpClientFactory _httpClientFactory = httpClientFactory ??
+    readonly IHttpClientFactory _httpClientFactory = httpClientFactory ??
             throw new ArgumentNullException(nameof(httpClientFactory));
 
     [Authorize]
@@ -26,7 +26,7 @@ public class AuthenticationController(IHttpClientFactory httpClientFactory) : Co
         }
 
         var accessTokenRevocationResponse = await client
-            .RevokeTokenAsync(new ()
+            .RevokeTokenAsync(new()
             {
                 Address = discoveryDocumentResponse.RevocationEndpoint,
                 ClientId = "imagegalleryclient",
@@ -42,13 +42,13 @@ public class AuthenticationController(IHttpClientFactory httpClientFactory) : Co
 
         var refreshTokenRevocationResponse = await client
             .RevokeTokenAsync(new()
-        {
-            Address = discoveryDocumentResponse.RevocationEndpoint,
-            ClientId = "imagegalleryclient",
-            ClientSecret = "secret",
-            Token = await HttpContext.GetTokenAsync(
+            {
+                Address = discoveryDocumentResponse.RevocationEndpoint,
+                ClientId = "imagegalleryclient",
+                ClientSecret = "secret",
+                Token = await HttpContext.GetTokenAsync(
                 OpenIdConnectParameterNames.RefreshToken)
-        });
+            });
 
         if (refreshTokenRevocationResponse.IsError)
         {

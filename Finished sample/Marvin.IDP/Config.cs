@@ -6,7 +6,7 @@ namespace Marvin.IDP;
 public static class Config
 {
     public static IEnumerable<IdentityResource> IdentityResources =>
-        [ 
+        [
             new IdentityResources.OpenId(),
             new IdentityResources.Profile(),
             new("roles",
@@ -23,20 +23,19 @@ public static class Config
                  "Image Gallery API",
                  ["role", "country"])
              {
-                 Scopes = { "imagegalleryapi.fullaccess", 
-                     "imagegalleryapi.read", 
+                 Scopes = { "imagegalleryapi.fullaccess",
+                     "imagegalleryapi.read",
                      "imagegalleryapi.write"},
                 ApiSecrets = { new Secret("apisecret".Sha256()) }
              }
          ];
 
-
     public static IEnumerable<ApiScope> ApiScopes =>
-        [ 
+        [
                 new("imagegalleryapi.fullaccess"),
                 new("imagegalleryapi.read"),
                 new("imagegalleryapi.write")];
- 
+
     public static IEnumerable<Client> Clients =>
         [
                 new()
@@ -71,7 +70,7 @@ public static class Config
                     ClientSecrets =
                     {
                         new Secret("secret".Sha256())
-                    }, 
+                    },
                     // RequireConsent = true
                 }
             ];
