@@ -9,11 +9,11 @@ namespace Marvin.IDP.Entities
 
         [MaxLength(250)]
         [Required]
-        public required string Type { get; set; } 
+        public required string Type { get; set; }
 
         [MaxLength(250)]
         [Required]
-        public required string Value { get; set; }  
+        public required string Value { get; set; }
 
         [ConcurrencyCheck]
         public string ConcurrencyStamp { get; set; } = Guid.NewGuid().ToString();
@@ -21,6 +21,6 @@ namespace Marvin.IDP.Entities
         [Required]
         public Guid UserId { get; set; }
 
-        public User? User { get; set; } 
+        public User? User { get; set; }
     }
 }

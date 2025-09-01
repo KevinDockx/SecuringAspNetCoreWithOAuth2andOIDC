@@ -1,3 +1,5 @@
+using System.Reflection;
+using System.Security.Cryptography.X509Certificates;
 using Azure.Identity;
 using Azure.Security.KeyVault.Secrets;
 using Duende.IdentityServer;
@@ -8,12 +10,10 @@ using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
-using System.Reflection;
-using System.Security.Cryptography.X509Certificates;
 
 namespace Marvin.IDP;
 
-internal static class HostingExtensions
+static class HostingExtensions
 {
     public static WebApplication ConfigureServices(
         this WebApplicationBuilder builder)
@@ -40,11 +40,11 @@ internal static class HostingExtensions
         if (dpKeys == null || dpProtectionKey == null)
         {
             throw new Exception("Missing data protection configuration value");
-        } 
+        }
         if (keyVaultUri == null)
         {
             throw new Exception("Missing keyvault configuration value");
-        } 
+        }
 
         builder.Services.AddDataProtection()
             .PersistKeysToAzureBlobStorage(
@@ -57,13 +57,26 @@ internal static class HostingExtensions
                new Uri(keyVaultUri),
                azureCredential);
 
-        var secretResponse = secretClient.GetSecret(
+        Azure.Response<KeyVaultSecret> secretResponse = secretClient.GetSecret(
             builder.Configuration["KeyVault:CertificateName"]);
-
+        /*
+        // latest guidance from MS: https://learn.microsoft.com/en-gb/dotnet/fundamentals/syslib-diagnostics/syslib0057
+        // hence CS complains with SYSLIB0057 warning
+        'X509Certificate2.X509Certificate2(byte[], string?, X509KeyStorageFlags)' is obsolete: 'Loading certificate data
+        through the constructor or Import is obsolete. Use X509CertificateLoader instead to load certificates.'
         var signingCertificate = new X509Certificate2(
           Convert.FromBase64String(secretResponse.Value.Value),
           (string?)null,
           X509KeyStorageFlags.MachineKeySet);
+        */
+        // SYSLIB0057 fix: Use X509CertificateLoader to load certificate from raw bytes
+        // The certificate is stored in Key Vault as a secret in PKCS #12 format
+        // see PS course [17.7; 0:40] for details (Az blade defaults to PKCS #12)
+        X509Certificate2 signingCertificate = X509CertificateLoader.LoadPkcs12(
+            Convert.FromBase64String(secretResponse.Value.Value),
+            password: null,
+            X509KeyStorageFlags.MachineKeySet) ??
+            throw new System.InvalidOperationException("certificate load failed");
 
         // uncomment if you want to add a UI
         builder.Services.AddRazorPages();
@@ -74,36 +87,27 @@ internal static class HostingExtensions
         builder.Services.AddScoped<ILocalUserService, LocalUserService>();
 
         builder.Services.AddDbContext<IdentityDbContext>(options =>
-        {
             options.UseSqlServer(
-                builder.Configuration.GetConnectionString("MarvinIdentityDBConnectionString"));
-        });
+                builder.Configuration.GetConnectionString("MarvinIdentityDBConnectionString")));
 
         builder.Services.Configure<ForwardedHeadersOptions>(options =>
-        {
-            options.ForwardedHeaders = ForwardedHeaders.XForwardedFor
-            | ForwardedHeaders.XForwardedProto;
-        });
+            options.ForwardedHeaders = ForwardedHeaders.XForwardedFor |
+                ForwardedHeaders.XForwardedProto);
 
         var migrationsAssembly = typeof(Program).GetTypeInfo().Assembly.GetName().Name;
 
         builder.Services.AddIdentityServer(options =>
-        {
             // https://docs.duendesoftware.com/identityserver/v6/fundamentals/resources/api_scopes#authorization-based-on-scopes
-            options.EmitStaticAudienceClaim = true;
-        })
+            options.EmitStaticAudienceClaim = true)
             .AddProfileService<LocalUserProfileService>()
             //.AddInMemoryIdentityResources(Config.IdentityResources)
             //.AddInMemoryApiScopes(Config.ApiScopes)
             //.AddInMemoryApiResources(Config.ApiResources)
             //.AddInMemoryClients(Config.Clients)
-            .AddConfigurationStore(options =>
-            {
-                options.ConfigureDbContext = optionsBuilder =>
+            .AddConfigurationStore(options => options.ConfigureDbContext = optionsBuilder =>
                 optionsBuilder.UseSqlServer(
                     builder.Configuration.GetConnectionString("IdentityServerDBConnectionString"),
-                          sqlOptions => sqlOptions.MigrationsAssembly(migrationsAssembly));
-            })
+                    sqlOptions => sqlOptions.MigrationsAssembly(migrationsAssembly)))
             .AddConfigurationStoreCache()
             .AddOperationalStore(options =>
             {

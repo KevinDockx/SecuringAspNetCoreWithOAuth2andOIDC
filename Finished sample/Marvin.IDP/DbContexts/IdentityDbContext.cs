@@ -3,17 +3,13 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Marvin.IDP.DbContexts
 {
-    public class IdentityDbContext : DbContext
+    public class IdentityDbContext(
+      DbContextOptions<IdentityDbContext> options) : DbContext(options)
     {
         public DbSet<User> Users { get; set; }
         public DbSet<UserClaim> UserClaims { get; set; }
         public DbSet<UserLogin> UserLogins { get; set; }
         public DbSet<UserSecret> UserSecrets { get; set; }
-        public IdentityDbContext(
-          DbContextOptions<IdentityDbContext> options)
-        : base(options)
-        {
-        }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -61,7 +57,7 @@ namespace Marvin.IDP.DbContexts
                  UserId = new Guid("13229d33-99e0-41b3-b18d-4f72127e3971"),
                  Type = "family_name",
                  Value = "Flagg"
-             }, 
+             },
              new UserClaim()
              {
                  Id = Guid.NewGuid(),
@@ -89,14 +85,14 @@ namespace Marvin.IDP.DbContexts
                  UserId = new Guid("96053525-f4a5-47ee-855e-0ea77fa6c55a"),
                  Type = "family_name",
                  Value = "Flagg"
-             }, 
+             },
              new UserClaim()
              {
                  Id = Guid.NewGuid(),
                  UserId = new Guid("96053525-f4a5-47ee-855e-0ea77fa6c55a"),
                  Type = "country",
                  Value = "be"
-             }, 
+             },
              new UserClaim()
              {
                  Id = Guid.NewGuid(),

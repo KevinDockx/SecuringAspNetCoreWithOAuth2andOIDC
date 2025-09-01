@@ -6,16 +6,11 @@ using System.Reflection;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
-namespace Marvin.IDP.Pages.Home;
+namespace Marvin.IDP.Pages;
 
 [AllowAnonymous]
-public class Index : PageModel
+public class Index(IdentityServerLicense? license = null) : PageModel
 {
-    public Index(IdentityServerLicense? license = null)
-    {
-        License = license;
-    }
-
     public string Version
     {
         get => typeof(Duende.IdentityServer.Hosting.IdentityServerMiddleware).Assembly
@@ -23,5 +18,5 @@ public class Index : PageModel
             ?.InformationalVersion.Split('+').First()
             ?? "unavailable";
     }
-    public IdentityServerLicense? License { get; }
+    public IdentityServerLicense? License { get; } = license;
 }

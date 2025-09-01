@@ -8,5 +8,5 @@ public class EditImageViewModel
     public string Title { get; set; } = string.Empty;
 
     [Required]
-    public Guid Id { get; set; }  
+    public Guid Id { get; set; }
 }

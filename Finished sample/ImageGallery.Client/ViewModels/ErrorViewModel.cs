@@ -1,4 +1,4 @@
-namespace ImageGallery.Client.Models;
+namespace ImageGallery.Client.ViewModels;
 
 public class ErrorViewModel
 {

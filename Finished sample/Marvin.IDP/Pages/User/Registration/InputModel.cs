@@ -9,7 +9,7 @@ namespace Marvin.IDP.Pages.User.Registration
 
         [MaxLength(200)]
         [Display(Name = "Username")]
-        public string? UserName { get; set; }  
+        public string? UserName { get; set; }
 
         [MaxLength(200)]
         [DataType(DataType.Password)]
@@ -38,13 +38,12 @@ namespace Marvin.IDP.Pages.User.Registration
         public string Email { get; set; } = string.Empty;
 
         public SelectList CountryCodes { get; set; } =
-            new (  new[] {
-                    new { Id = "be", Value = "Belgium" },
-                    new { Id = "us", Value = "United States of America" },
-                    new { Id = "in", Value = "India" } },
-                "Id",
-                "Value");
+            new(new[] {
+                new { Id = "be", Value = "Belgium" },
+                new { Id = "us", Value = "United States of America" },
+                new { Id = "in", Value = "India" } },
+            "Id",
+            "Value");
     }
-
 
 }

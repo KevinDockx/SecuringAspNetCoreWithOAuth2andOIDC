@@ -46,10 +46,9 @@ public sealed class SecurityHeadersAttribute : ActionFilterAttribute
             }
 
             // https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Referrer-Policy
-            var referrer_policy = "no-referrer";
             if (!context.HttpContext.Response.Headers.ContainsKey("Referrer-Policy"))
             {
-                context.HttpContext.Response.Headers.Append("Referrer-Policy", referrer_policy);
+                context.HttpContext.Response.Headers.Append("Referrer-Policy", "no-referrer");
             }
         }
     }

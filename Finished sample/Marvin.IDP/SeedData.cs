@@ -4,18 +4,16 @@ using Serilog;
 
 namespace Marvin.IDP;
 
-public class SeedData
+public static class SeedData
 {
     public static void EnsureSeedData(WebApplication app)
     {
-        using (var scope = app.Services.GetRequiredService<IServiceScopeFactory>().CreateScope())
-        {
-            var context = scope.ServiceProvider.GetRequiredService<ConfigurationDbContext>();
-            EnsureSeedData(context);
-        }
-    } 
+        using var scope = app.Services.GetRequiredService<IServiceScopeFactory>().CreateScope();
+        var context = scope.ServiceProvider.GetRequiredService<ConfigurationDbContext>();
+        EnsureSeedData(context);
+    }
 
-    private static void EnsureSeedData(ConfigurationDbContext context)
+    static void EnsureSeedData(ConfigurationDbContext context)
     {
         if (!context.Clients.Any())
         {
