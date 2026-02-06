@@ -1,4 +1,3 @@
-using Duende.IdentityServer;
 using Duende.IdentityServer.Services;
 using Duende.IdentityModel;
 using Marvin.IDP.Services;
@@ -14,10 +13,8 @@ namespace Marvin.IDP.Pages.User.Registration
         ILocalUserService localUserService,
         IIdentityServerInteractionService interaction) : PageModel
     {
-        private readonly ILocalUserService _localUserService = localUserService ??
+        readonly ILocalUserService _localUserService = localUserService ??
                 throw new ArgumentNullException(nameof(localUserService));
-        private readonly IIdentityServerInteractionService _interaction = interaction ??
-                throw new ArgumentNullException(nameof(interaction));
 
         [BindProperty]
         public InputModel Input { get; set; } = new InputModel();
@@ -29,7 +26,7 @@ namespace Marvin.IDP.Pages.User.Registration
             return Page();
         }
 
-        private void BuildModel(string returnUrl)
+        void BuildModel(string returnUrl)
         {
             Input = new InputModel
             {
@@ -52,7 +49,7 @@ namespace Marvin.IDP.Pages.User.Registration
                 UserName = Input.UserName,
                 Subject = Guid.NewGuid().ToString(),
                 Email = Input.Email,
-                Active = false 
+                Active = false
             };
             userToCreate.Claims.Add(new Entities.UserClaim()
             {
@@ -72,7 +69,7 @@ namespace Marvin.IDP.Pages.User.Registration
                 Value = Input.FamilyName
             });
 
-            _localUserService.AddUser(userToCreate, 
+            _localUserService.AddUser(userToCreate,
                 Input.Password ?? string.Empty);
             await _localUserService.SaveChangesAsync();
 
@@ -99,7 +96,6 @@ namespace Marvin.IDP.Pages.User.Registration
             //}
 
             //return Redirect("~/");
-
 
         }
     }

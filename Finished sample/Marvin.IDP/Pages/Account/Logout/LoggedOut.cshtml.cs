@@ -5,20 +5,15 @@ using Duende.IdentityServer.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
-namespace Marvin.IDP.Pages.Logout;
+namespace Marvin.IDP.Pages.Account.Logout;
 
 [SecurityHeaders]
 [AllowAnonymous]
-public class LoggedOut : PageModel
+public class LoggedOut(IIdentityServerInteractionService interactionService) : PageModel
 {
-    private readonly IIdentityServerInteractionService _interactionService;
+    readonly IIdentityServerInteractionService _interactionService = interactionService;
 
     public LoggedOutViewModel View { get; set; } = default!;
-
-    public LoggedOut(IIdentityServerInteractionService interactionService)
-    {
-        _interactionService = interactionService;
-    }
 
     public async Task OnGet(string? logoutId)
     {
@@ -29,7 +24,7 @@ public class LoggedOut : PageModel
         {
             AutomaticRedirectAfterSignOut = LogoutOptions.AutomaticRedirectAfterSignOut,
             PostLogoutRedirectUri = logout?.PostLogoutRedirectUri,
-            ClientName = String.IsNullOrEmpty(logout?.ClientName) ? logout?.ClientId : logout?.ClientName,
+            ClientName = string.IsNullOrEmpty(logout?.ClientName) ? logout?.ClientId : logout?.ClientName,
             SignOutIframeUrl = logout?.SignOutIFrameUrl
         };
     }

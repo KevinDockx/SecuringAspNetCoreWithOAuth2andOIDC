@@ -4,15 +4,15 @@ using Microsoft.EntityFrameworkCore;
 
 namespace ImageGallery.API.Services;
 
-public class GalleryRepository(GalleryContext galleryContext) : IGalleryRepository 
+public class GalleryRepository(GalleryContext galleryContext) : IGalleryRepository
 {
-    private readonly GalleryContext _context = galleryContext ??
+    readonly GalleryContext _context = galleryContext ??
             throw new ArgumentNullException(nameof(galleryContext));
 
     public async Task<bool> ImageExistsAsync(Guid id)
     {
         return await _context.Images.AnyAsync(i => i.Id == id);
-    }       
+    }
 
     public async Task<Image?> GetImageAsync(Guid id)
     {
@@ -31,7 +31,7 @@ public class GalleryRepository(GalleryContext galleryContext) : IGalleryReposito
         return await _context.Images
             .AnyAsync(i => i.Id == id && i.OwnerId == ownerId);
     }
-    
+
     public void AddImage(Image image)
     {
         _context.Images.Add(image);
@@ -53,6 +53,6 @@ public class GalleryRepository(GalleryContext galleryContext) : IGalleryReposito
 
     public async Task<bool> SaveChangesAsync()
     {
-        return (await _context.SaveChangesAsync() >= 0);
-    } 
+        return await _context.SaveChangesAsync() >= 0;
+    }
 }

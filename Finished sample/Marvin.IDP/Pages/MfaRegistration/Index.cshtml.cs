@@ -5,29 +5,23 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using System.Net;
 using System.Security.Cryptography;
-using System.Security.Cryptography.Xml;
 using System.Text;
 
 namespace Marvin.IDP.Pages.MfaRegistration
 {
     [SecurityHeaders]
     [Authorize]
-    public class IndexModel : PageModel
+    public class IndexModel(ILocalUserService localUserService) : PageModel
     {
-        private readonly ILocalUserService _localUserService;
-        private readonly char[] _chars =
+        readonly ILocalUserService _localUserService = localUserService ??
+                throw new ArgumentNullException(nameof(localUserService));
+        readonly char[] _chars =
            "ABCDEFGHIJKLMNOPQRSTUVWXYZ".ToCharArray();
 
         public ViewModel View { get; set; } = new ViewModel() { KeyUri = string.Empty };
 
         [BindProperty]
         public InputModel Input { get; set; } = new InputModel() { Secret = string.Empty };
-
-        public IndexModel(ILocalUserService localUserService)
-        {
-            _localUserService = localUserService ??
-                throw new ArgumentNullException(nameof(localUserService));
-        }
 
         public async Task OnGet()
         {
@@ -53,15 +47,15 @@ namespace Marvin.IDP.Pages.MfaRegistration
                WebUtility.UrlEncode(user?.Email),
                secret);
 
-            View = new ()
+            View = new()
             {
                 KeyUri = keyUri
             };
 
-            Input = new ()
+            Input = new()
             {
                 Secret = secret
-            }; 
+            };
         }
 
         public async Task<IActionResult> OnPost()
@@ -69,7 +63,7 @@ namespace Marvin.IDP.Pages.MfaRegistration
             if (ModelState.IsValid)
             {
                 var subject = User.FindFirst(JwtClaimTypes.Subject)?.Value;
-     
+
                 if (subject != null && await _localUserService
                     .AddUserSecret(subject, "TOTP", Input.Secret))
                 {

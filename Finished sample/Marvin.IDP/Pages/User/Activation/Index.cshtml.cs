@@ -10,7 +10,7 @@ namespace Marvin.IDP.Pages.User.Activation
 
     public class IndexModel(ILocalUserService localUserService) : PageModel
     {
-        private readonly ILocalUserService _localUserService = localUserService ??
+        readonly ILocalUserService _localUserService = localUserService ??
                 throw new ArgumentNullException(nameof(localUserService));
 
         [BindProperty]
@@ -20,21 +20,15 @@ namespace Marvin.IDP.Pages.User.Activation
         {
             Input = new InputModel() { Message = string.Empty };
 
-            if (await _localUserService.ActivateUserAsync(securityCode))
-            {
-                Input.Message = "Your account was successfully activated.  " +
-                    "Navigate to your client application to log in.";
-            }
-            else
-            {
-                Input.Message = "Your account couldn't be activated, " +
+            Input.Message = await _localUserService.ActivateUserAsync(securityCode)
+                ? "Your account was successfully activated.  " +
+                    "Navigate to your client application to log in."
+                : "Your account couldn't be activated, " +
                     "please contact your administrator.";
-            }
 
             await _localUserService.SaveChangesAsync();
 
             return Page();
-
 
         }
     }

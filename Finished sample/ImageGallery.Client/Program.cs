@@ -9,7 +9,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews()
-    .AddJsonOptions(configure => 
+    .AddJsonOptions(configure =>
         configure.JsonSerializerOptions.PropertyNamingPolicy = null);
 
 JsonWebTokenHandler.DefaultInboundClaimTypeMap.Clear();
@@ -26,18 +26,14 @@ builder.Services.AddHttpClient("APIClient", client =>
 }).AddUserAccessTokenHandler();
 
 builder.Services.AddHttpClient("IDPClient", client =>
-{
-    client.BaseAddress = new Uri("https://localhost:44300/");
-});
+    client.BaseAddress = new Uri("https://localhost:44300/"));
 
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
     options.DefaultChallengeScheme = OpenIdConnectDefaults.AuthenticationScheme;
 }).AddCookie(CookieAuthenticationDefaults.AuthenticationScheme, options =>
-{
-    options.AccessDeniedPath = "/Authentication/AccessDenied";
-})
+    options.AccessDeniedPath = "/Authentication/AccessDenied")
 .AddOpenIdConnect(OpenIdConnectDefaults.AuthenticationScheme, options =>
 {
     options.SignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
@@ -67,16 +63,15 @@ builder.Services.AddAuthentication(options =>
     options.Scope.Add("offline_access");
     options.ClaimActions.MapJsonKey("role", "role");
     options.ClaimActions.MapUniqueJsonKey("country", "country");
-    options.TokenValidationParameters = new ()
+    options.TokenValidationParameters = new()
     {
         NameClaimType = "given_name",
         RoleClaimType = "role",
-    }; 
+    };
 });
 
 builder.Services.AddAuthorizationBuilder()
     .AddPolicy("UserCanAddImage", AuthorizationPolicies.CanAddImage());
-
 
 var app = builder.Build();
 

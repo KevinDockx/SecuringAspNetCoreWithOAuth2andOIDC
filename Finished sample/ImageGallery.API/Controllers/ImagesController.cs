@@ -14,11 +14,11 @@ public class ImagesController(
     IWebHostEnvironment hostingEnvironment,
     IMapper mapper) : ControllerBase
 {
-    private readonly IGalleryRepository _galleryRepository = galleryRepository ??
+    readonly IGalleryRepository _galleryRepository = galleryRepository ??
             throw new ArgumentNullException(nameof(galleryRepository));
-    private readonly IWebHostEnvironment _hostingEnvironment = hostingEnvironment ??
+    readonly IWebHostEnvironment _hostingEnvironment = hostingEnvironment ??
             throw new ArgumentNullException(nameof(hostingEnvironment));
-    private readonly IMapper _mapper = mapper ??
+    readonly IMapper _mapper = mapper ??
             throw new ArgumentNullException(nameof(mapper));
 
     [HttpGet()]
@@ -40,7 +40,7 @@ public class ImagesController(
     [HttpGet("{id}", Name = "GetImage")]
     [Authorize("MustOwnImage")]
     public async Task<ActionResult<Image>> GetImage(Guid id)
-    {          
+    {
         var imageFromRepo = await _galleryRepository.GetImageAsync(id);
 
         if (imageFromRepo == null)
@@ -71,7 +71,7 @@ public class ImagesController(
 
         // create the filename
         string fileName = Guid.NewGuid().ToString() + ".jpg";
-        
+
         // the full file path
         var filePath = Path.Combine($"{webRootPath}/images/{fileName}");
 
@@ -90,7 +90,6 @@ public class ImagesController(
             .FirstOrDefault(c => c.Type == "sub")?.Value) ?? throw new Exception("User identifier is missing from token.");
         imageEntity.OwnerId = ownerId;
 
-
         // add and save.  
         _galleryRepository.AddImage(imageEntity);
 
@@ -106,7 +105,7 @@ public class ImagesController(
     [HttpDelete("{id}")]
     [Authorize("MustOwnImage")]
     public async Task<IActionResult> DeleteImage(Guid id)
-    {            
+    {
         var imageFromRepo = await _galleryRepository.GetImageAsync(id);
 
         if (imageFromRepo == null)
@@ -123,7 +122,7 @@ public class ImagesController(
 
     [HttpPut("{id}")]
     [Authorize("MustOwnImage")]
-    public async Task<IActionResult> UpdateImage(Guid id, 
+    public async Task<IActionResult> UpdateImage(Guid id,
         [FromBody] ImageForUpdate imageForUpdate)
     {
         var imageFromRepo = await _galleryRepository.GetImageAsync(id);

@@ -3,7 +3,7 @@
 
 using System.ComponentModel.DataAnnotations;
 
-namespace Marvin.IDP.Pages.Login;
+namespace Marvin.IDP.Pages.Account.Login;
 
 public class InputModel
 {

@@ -1,14 +1,13 @@
 // Copyright (c) Duende Software. All rights reserved.
 // See LICENSE in the project root for license information.
 
-
 using Duende.IdentityModel;
 using Duende.IdentityServer.Test;
 using System.Security.Claims;
 
-namespace Marvin.IDP;
+namespace Marvin.IDP.Pages;
 
-public class TestUsers
+public static class TestUsers
 {
     public static List<TestUser> Users
     {

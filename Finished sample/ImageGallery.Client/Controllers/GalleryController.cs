@@ -13,9 +13,9 @@ namespace ImageGallery.Client.Controllers;
 public class GalleryController(IHttpClientFactory httpClientFactory,
     ILogger<GalleryController> logger) : Controller
 {
-    private readonly IHttpClientFactory _httpClientFactory = httpClientFactory ??
+    readonly IHttpClientFactory _httpClientFactory = httpClientFactory ??
             throw new ArgumentNullException(nameof(httpClientFactory));
-    private readonly ILogger<GalleryController> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+    readonly ILogger<GalleryController> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
     public async Task<IActionResult> Index()
     {
@@ -32,11 +32,9 @@ public class GalleryController(IHttpClientFactory httpClientFactory,
 
         response.EnsureSuccessStatusCode();
 
-        using (var responseStream = await response.Content.ReadAsStreamAsync())
-        {
-            var images = await JsonSerializer.DeserializeAsync<List<Image>>(responseStream);
-            return View(new GalleryIndexViewModel(images ?? []));
-        }
+        await using var responseStream = await response.Content.ReadAsStreamAsync();
+        var images = await JsonSerializer.DeserializeAsync<List<Image>>(responseStream);
+        return View(new GalleryIndexViewModel(images ?? []));
     }
 
     public async Task<IActionResult> EditImage(Guid id)
@@ -53,17 +51,15 @@ public class GalleryController(IHttpClientFactory httpClientFactory,
 
         response.EnsureSuccessStatusCode();
 
-        using (var responseStream = await response.Content.ReadAsStreamAsync())
+        await using var responseStream = await response.Content.ReadAsStreamAsync();
+        var deserializedImage = await JsonSerializer.DeserializeAsync<Image>(responseStream) ?? throw new Exception("Deserialized image must not be null.");
+        var editImageViewModel = new EditImageViewModel()
         {
-            var deserializedImage = await JsonSerializer.DeserializeAsync<Image>(responseStream) ?? throw new Exception("Deserialized image must not be null.");
-            var editImageViewModel = new EditImageViewModel()
-            {
-                Id = deserializedImage.Id,
-                Title = deserializedImage.Title
-            };
+            Id = deserializedImage.Id,
+            Title = deserializedImage.Title
+        };
 
-            return View(editImageViewModel);
-        }
+        return View(editImageViewModel);
     }
 
     [HttpPost]
@@ -139,17 +135,15 @@ public class GalleryController(IHttpClientFactory httpClientFactory,
         ImageForCreation? imageForCreation = null;
 
         // take the first (only) file in the Files list
-        var imageFile = addImageViewModel.Files.First();
+        var imageFile = addImageViewModel.Files[0];
 
         if (imageFile.Length > 0)
         {
-            using (var fileStream = imageFile.OpenReadStream())
-            using (var ms = new MemoryStream())
-            {
-                fileStream.CopyTo(ms);
-                imageForCreation = new ImageForCreation(
-                    addImageViewModel.Title, ms.ToArray());
-            }
+            await using var fileStream = imageFile.OpenReadStream();
+            await using var ms = new MemoryStream();
+            fileStream.CopyTo(ms);
+            imageForCreation = new ImageForCreation(
+                addImageViewModel.Title, ms.ToArray());
         }
 
         // serialize it
@@ -159,7 +153,7 @@ public class GalleryController(IHttpClientFactory httpClientFactory,
 
         var request = new HttpRequestMessage(
             HttpMethod.Post,
-            $"/api/images")
+            "/api/images")
         {
             Content = new StringContent(
                 serializedImageForCreation,

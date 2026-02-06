@@ -15,10 +15,8 @@ builder.Services.AddControllers()
     .AddJsonOptions(configure => configure.JsonSerializerOptions.PropertyNamingPolicy = null);
 
 builder.Services.AddDbContext<GalleryContext>(options =>
-{
     options.UseSqlite(
-        builder.Configuration["ConnectionStrings:ImageGalleryDBConnectionString"]);
-});
+        builder.Configuration["ConnectionStrings:ImageGalleryDBConnectionString"]));
 
 // register the repository
 builder.Services.AddScoped<IGalleryRepository, GalleryRepository>();
@@ -52,13 +50,10 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
           options.RoleClaimType = "role";
       });
 
-
 builder.Services.AddAuthorizationBuilder()
     .AddPolicy("UserCanAddImage", AuthorizationPolicies.CanAddImage())
     .AddPolicy("ClientApplicationCanWrite", policyBuilder =>
-        {
-            policyBuilder.RequireClaim("scope", "imagegalleryapi.write");
-        })
+        policyBuilder.RequireClaim("scope", "imagegalleryapi.write"))
     .AddPolicy("MustOwnImage", policyBuilder =>
         {
             policyBuilder.RequireAuthenticatedUser();

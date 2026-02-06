@@ -5,16 +5,13 @@ using System.Diagnostics.Metrics;
 
 namespace Marvin.IDP.Pages;
 
-#pragma warning disable CA1034 // Nested types should not be visible
-#pragma warning disable CA1724 // Type names should not match namespaces
-
 /// <summary>
 /// Telemetry helpers for the UI
 /// </summary>
 public static class Telemetry
 {
-    private static readonly string ServiceVersion = typeof(Telemetry).Assembly.GetName().Version!.ToString();
-    
+    static readonly string ServiceVersion = typeof(Telemetry).Assembly.GetName().Version!.ToString();
+
     /// <summary>
     /// Service name for telemetry.
     /// </summary>
@@ -95,9 +92,9 @@ public static class Telemetry
         /// <summary>
         /// Meter for the IdentityServer host project
         /// </summary>
-        private static readonly Meter Meter = new Meter(ServiceName, ServiceVersion);
+        static readonly Meter Meter = new(ServiceName, ServiceVersion);
 
-        private static Counter<long> ConsentGrantedCounter = Meter.CreateCounter<long>(Counters.ConsentGranted);
+        static readonly Counter<long> ConsentGrantedCounter = Meter.CreateCounter<long>(Counters.ConsentGranted);
 
         /// <summary>
         /// Helper method to increase <see cref="Counters.ConsentGranted"/> counter. The scopes
@@ -108,13 +105,13 @@ public static class Telemetry
         public static void ConsentGranted(string clientId, IEnumerable<string> scopes, bool remember)
         {
             ArgumentNullException.ThrowIfNull(scopes);
-            foreach(var scope in scopes)
+            foreach (var scope in scopes)
             {
                 ConsentGrantedCounter.Add(1, new(Tags.Client, clientId), new(Tags.Scope, scope), new(Tags.Remember, remember));
             }
         }
 
-        private static Counter<long> ConsentDeniedCounter = Meter.CreateCounter<long>(Counters.ConsentDenied);
+        static readonly Counter<long> ConsentDeniedCounter = Meter.CreateCounter<long>(Counters.ConsentDenied);
 
         /// <summary>
         /// Helper method to increase <see cref="Counters.ConsentDenied"/> counter. The scopes
@@ -131,7 +128,7 @@ public static class Telemetry
             }
         }
 
-        private static Counter<long> GrantsRevokedCounter = Meter.CreateCounter<long>(Counters.GrantsRevoked);
+        static readonly Counter<long> GrantsRevokedCounter = Meter.CreateCounter<long>(Counters.GrantsRevoked);
 
         /// <summary>
         /// Helper method to increase the <see cref="Counters.GrantsRevoked"/> counter.
@@ -140,7 +137,7 @@ public static class Telemetry
         public static void GrantsRevoked(string? clientId)
             => GrantsRevokedCounter.Add(1, tag: new(Tags.Client, clientId));
 
-        private static Counter<long> UserLoginCounter = Meter.CreateCounter<long>(Counters.UserLogin);
+        static readonly Counter<long> UserLoginCounter = Meter.CreateCounter<long>(Counters.UserLogin);
 
         /// <summary>
         /// Helper method to increase <see cref="Counters.UserLogin"/> counter.
@@ -149,7 +146,7 @@ public static class Telemetry
         public static void UserLogin(string? clientId, string idp)
             => UserLoginCounter.Add(1, new(Tags.Client, clientId), new(Tags.Idp, idp));
 
-        private static Counter<long> UserLoginFailureCounter = Meter.CreateCounter<long>(Counters.UserLoginFailure);
+        static readonly Counter<long> UserLoginFailureCounter = Meter.CreateCounter<long>(Counters.UserLoginFailure);
 
         /// <summary>
         /// Helper method to increase <see cref="Counters.UserLoginFailure" counter.
@@ -159,7 +156,7 @@ public static class Telemetry
         public static void UserLoginFailure(string? clientId, string idp, string error)
             => UserLoginFailureCounter.Add(1, new(Tags.Client, clientId), new(Tags.Idp, idp), new(Tags.Error, error));
 
-        private static Counter<long> UserLogoutCounter = Meter.CreateCounter<long>(Counters.UserLogout);
+        static readonly Counter<long> UserLogoutCounter = Meter.CreateCounter<long>(Counters.UserLogout);
 
         /// <summary>
         /// Helper method to increase the <see cref="Counters.UserLogout"/> counter.

@@ -10,23 +10,14 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
-namespace Marvin.IDP.Pages.Logout;
+namespace Marvin.IDP.Pages.Account.Logout;
 
 [SecurityHeaders]
 [AllowAnonymous]
-public class Index : PageModel
+public class Index(IIdentityServerInteractionService interaction, IEventService events) : PageModel
 {
-    private readonly IIdentityServerInteractionService _interaction;
-    private readonly IEventService _events;
-
-    [BindProperty] 
+    [BindProperty]
     public string? LogoutId { get; set; }
-
-    public Index(IIdentityServerInteractionService interaction, IEventService events)
-    {
-        _interaction = interaction;
-        _events = events;
-    }
 
     public async Task<IActionResult> OnGet(string? logoutId)
     {
@@ -41,15 +32,15 @@ public class Index : PageModel
         }
         else
         {
-            var context = await _interaction.GetLogoutContextAsync(LogoutId);
+            var context = await interaction.GetLogoutContextAsync(LogoutId);
             if (context?.ShowSignoutPrompt == false)
             {
                 // it's safe to automatically sign-out
                 showLogoutPrompt = false;
             }
         }
-            
-        if (showLogoutPrompt == false)
+
+        if (!showLogoutPrompt)
         {
             // if the request for logout was properly authenticated from IdentityServer, then
             // we don't need to show the prompt and can just log the user out directly.
@@ -66,8 +57,8 @@ public class Index : PageModel
             // if there's no current logout context, we need to create one
             // this captures necessary info from the current logged in user
             // this can still return null if there is no context needed
-            LogoutId ??= await _interaction.CreateLogoutContextAsync();
-                
+            LogoutId ??= await interaction.CreateLogoutContextAsync();
+
             // delete local authentication cookie
             await HttpContext.SignOutAsync();
 
@@ -75,7 +66,7 @@ public class Index : PageModel
             var idp = User.FindFirst(JwtClaimTypes.IdentityProvider)?.Value;
 
             // raise the logout event
-            await _events.RaiseAsync(new UserLogoutSuccessEvent(User.GetSubjectId(), User.GetDisplayName()));
+            await events.RaiseAsync(new UserLogoutSuccessEvent(User.GetSubjectId(), User.GetDisplayName()));
             Telemetry.Metrics.UserLogout(idp);
 
             // if it's a local login we can ignore this workflow
