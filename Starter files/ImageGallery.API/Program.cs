@@ -1,6 +1,7 @@
 using ImageGallery.API.DbContexts;
 using ImageGallery.API.Services;
 using Microsoft.EntityFrameworkCore;
+using AutoMapper;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -19,7 +20,8 @@ builder.Services.AddDbContext<GalleryContext>(options =>
 builder.Services.AddScoped<IGalleryRepository, GalleryRepository>();
 
 // register AutoMapper-related services
-builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+builder.Services.AddAutoMapper(config => { },
+    AppDomain.CurrentDomain.GetAssemblies());
 
 var app = builder.Build();
 

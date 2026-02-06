@@ -26,7 +26,8 @@ builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<IAuthorizationHandler, MustOwnImageHandler>();
 
 // register AutoMapper-related services
-builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+builder.Services.AddAutoMapper(config => { },
+    AppDomain.CurrentDomain.GetAssemblies());
 
 JsonWebTokenHandler.DefaultInboundClaimTypeMap.Clear();
 
